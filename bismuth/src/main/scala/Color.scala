@@ -20,6 +20,15 @@ case class Color(r: Double, g: Double, b: Double, a: Double) {
   // Set Opacity
   def setOpacity(α: Double): Color = this.copy(a = α)
 
+  def cMap(f: Double => Double): Color = Color(f(r), f(g), f(b), f(a))
+
+  def overlay(background: Color): Color = {
+    val r_new = this.r * this.a + background.r * (1 - this.a)
+    val g_new = this.g * this.a + background.g * (1 - this.a)
+    val b_new = this.b * this.a + background.b * (1 - this.a)
+    Color(r_new, g_new, b_new, background.a)
+  }
+
   // -
   def -(that: Color): Color = {
     Color(
@@ -29,6 +38,31 @@ case class Color(r: Double, g: Double, b: Double, a: Double) {
       a
     )
   }
+
+  // +
+  def +(that: Color): Color = {
+    Color(
+      r + that.r,
+      g + that.g,
+      b + that.b,
+      a + that.a
+    )
+  }
+
+  // *
+  def *(that: Color): Color = {
+    Color(
+      r * that.r,
+      g * that.g,
+      b * that.b,
+      a + that.a
+    )
+  }
+
+  def abs: Color = cMap(Math.abs)
+
+  def negate: Color = cMap(v => -v)
+
 }
 
 object Color {
