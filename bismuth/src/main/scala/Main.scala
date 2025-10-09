@@ -1,5 +1,10 @@
-@main def hello(): Unit =
-  println("Hello world!")
-  println(msg)
+package bismuth
 
-def msg = "I was compiled by Scala 3. :)"
+import bismuth.Color
+
+@main def main(): Unit = {
+  val red = Color.red
+  val g = Color.Grayscale(1)
+  println(red)
+  println(g)
+}
