@@ -3,16 +3,6 @@ import java.awt.Color as JavaColor
 
 case class Color(r: Double, g: Double, b: Double, a: Double) {
   // Interpolate
-  def interpolate(that: Color, w: Double): Color = {
-    def mix(v1: Double, v2: Double): Double = (1 - w) * v1 + w * v2
-
-    Color(
-      mix(this.r, that.r),
-      mix(this.g, that.g),
-      mix(this.b, that.b),
-      mix(this.a, that.a)
-    )
-  }
   // Complement
   def complement(): Color =
     Color(1 - r, 1 - g, 1 - b, a)
@@ -21,13 +11,6 @@ case class Color(r: Double, g: Double, b: Double, a: Double) {
   def setOpacity(α: Double): Color = this.copy(a = α)
 
   def cMap(f: Double => Double): Color = Color(f(r), f(g), f(b), f(a))
-
-  def overlay(background: Color): Color = {
-    val r_new = this.r * this.a + background.r * (1 - this.a)
-    val g_new = this.g * this.a + background.g * (1 - this.a)
-    val b_new = this.b * this.a + background.b * (1 - this.a)
-    Color(r_new, g_new, b_new, background.a)
-  }
 
   // -
   def -(that: Color): Color = {
@@ -76,7 +59,7 @@ object Color {
   val white: Color = Color(1, 1, 1, 1)
 
   // Grayscale
-  opaque type Grayscale = Double
+  type Grayscale = Double
   object Grayscale {
     def apply(value: Double): Grayscale = value
   }
@@ -84,6 +67,22 @@ object Color {
   def injGreen(g: Grayscale): Color = Color(0, g, 0, 1)
   def injBlue(g: Grayscale): Color = Color(0, 0, g, 1)
   def injBlack(g: Grayscale): Color = white - Color(g, g, g, 1)
+  def interpolate(c1: Color, c2: Color, w: Double): Color = {
+    def mix(v1: Double, v2: Double): Double = (1 - w) * v1 + w * v2
+
+    Color(
+      mix(c1.r, c2.r),
+      mix(c1.g, c2.g),
+      mix(c1.b, c2.b),
+      mix(c1.a, c2.a)
+    )
+  }
+  def overlay(curr: Color, background: Color): Color = {
+    val r_new = curr.r * curr.a + background.r * (1 - curr.a)
+    val g_new = curr.g * curr.a + background.g * (1 - curr.a)
+    val b_new = curr.b * curr.a + background.b * (1 - curr.a)
+    Color(r_new, g_new, b_new, background.a)
+  }
 }
 
 trait PixelValue[A]:

@@ -22,22 +22,25 @@ case class Point(x: Double, y: Double) {
     Point((x + other.x) / 2, (y + other.y) / 2)
 
   // Rotation
-  def rotate(θ: Double): Point = {
-    val c = Math.cos(θ)
-    val s = Math.sin(θ)
-    return Point(c * x - s * y, s * x + c * y)
-  }
-
-  // Translation
-  def translate(v: Vector): Point = Point(x + v.x, y + v.y)
-
-  // Scaling
-  def scale(k: Double): Point = Point(x * k, y * k)
-
-  def scale2(kx: Double, ky: Double): Point = Point(kx * x, ky * y)
 
   // Swirling
-  def swirl(θ: Double, p: Point): Point = p.rotate(θ * p.norm())
+}
+
+object Point {
+  def rotate(θ: Double)(p: Point): Point = {
+    val c = Math.cos(θ)
+    val s = Math.sin(θ)
+    return Point(c * p.x - s * p.y, s * p.x + c * p.y)
+  }
+  // Translation
+  def translate(v: Vector)(p: Point): Point = Point(p.x + v.x, p.y + v.y)
+
+  // Scaling
+  def scale(k: Double)(p: Point): Point = Point(p.x * k, p.y * k)
+
+  def scale2(kx: Double, ky: Double)(p: Point): Point =
+    Point(kx * p.x, ky * p.y)
+  def swirl(θ: Double)(p: Point): Point = rotate(θ * p.norm())(p)
 }
 
 case class Polar(r: Double, θ: Double) {
