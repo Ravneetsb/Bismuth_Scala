@@ -1,6 +1,7 @@
 package bismuth
 
 import fastparse._, NoWhitespace._
+import Expr.*
 
 object Parser {
   val namedColors: Map[String, Color] = Map(
@@ -11,6 +12,7 @@ object Parser {
     "black" -> Color.black,
     "white" -> Color.white
   )
+
   val reserved: Set[String] = Set(
     "true",
     "false",
@@ -32,12 +34,14 @@ object Parser {
     "cos",
     "tan",
     "sqrt"
-  )
-  def kw(using p: P[_]): P[Unit] = P("a" ~ "b")
-  def parseA(using p: P[_]): P[Unit] = P("a")
+  ) ++ namedColors.keySet
+
+  def namedColor(using p: P[?]): P[Expr] = P(
+    StringIn("red", "green", "blue", "yellow", "black", "white").!
+  ).map(c => ColorLit(namedColors(c)))
 
   @main def run(): Unit =
-    val result = parse("ab", kw(using _))
+    val result = parse("red", namedColor(using _))
     result match
       case Parsed.Success(value, successIndex) =>
         println(s"Success! value=$value, index=$successIndex")
