@@ -40,6 +40,11 @@ object Parser {
     StringIn("red", "green", "blue", "yellow", "black", "white").!
   ).map(c => ColorLit(namedColors(c)))
 
+  def identifier(using p: P[?]): P[String] =
+    P(CharIn("a-zA-Z") ~ CharsWhile(_.isLetterOrDigit, 0)).!.filter(
+      !reserved.contains(_)
+    )
+
   @main def run(): Unit =
     val result = parse("red", namedColor(using _))
     result match
