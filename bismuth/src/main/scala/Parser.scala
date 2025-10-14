@@ -77,7 +77,7 @@ object Parser {
     P(
       kw("x").map(_ => Expr.X) |
         kw("y").map(_ => Expr.Y) |
-        kw("r").map(_ => Expr.R) |
+        (kw("r") ~ !CharIn("o", "e")).map(_ => Expr.R) |
         kw("theta").map(_ => Expr.Theta) |
         kw("pi").map(_ => Expr.GrayLit(math.Pi))
     )
@@ -155,7 +155,7 @@ object Parser {
   // Vars
 
   def coordVar(using p: P[?]): P[Expr] =
-    P(StringIn("x", "y", "r", "theta").!).map {
+    P(StringIn("x", "y", "r", "theta").! ~ !CharIn("o", "e")).map {
       case "x"     => Expr.X
       case "y"     => Expr.Y
       case "r"     => Expr.R
@@ -169,26 +169,33 @@ object Parser {
 
   def simpleExpr(using p: P[?]): P[Expr] =
     P(
-      namedColor |
+      varE |
+        namedColor |
         colorLit |
-        varE |
         coordVar |
+        (builtInA ~ parens(expr)).map((trig, e) =>
+          bismuth.Expr.UnOp(bismuth.UnOp.BuiltIn(trig), e)
+        ) |
         parens(expr) |
         braces(expr) |
         grayLit |
         boolLit |
         (kw("flip") ~ parens(expr)).map { case (e) => Expr.Flip(e) } |
-        (kw("scale") ~ parens(arithExpr ~ comma ~ expr)).map { case (a, e) =>
-          Expr.Scale(a, e)
-        } |
+        (kw("scale") ~ parens(arithExpr ~ comma ~ (arithExpr ~ comma).? ~ expr))
+          .map {
+            case (a, None, e) =>
+              Expr.Scale(a, e)
+            case (a1, Some(a2), e) => Expr.Scale2(a1, a2, e)
+          } |
         (kw("swirl") ~ parens(arithExpr ~ comma ~ expr)).map { case (a, e) =>
           Expr.Swirl(a, e)
         } |
         (kw("rotate") ~ parens(arithExpr ~ comma ~ expr)).map { case (a, e) =>
           Expr.Rotate(a, e)
         } |
-        (kw("rotate") ~ parens(arithExpr ~ comma ~ expr)).map { case (a, e) =>
-          Expr.Replicate(a, e)
+        (kw("replicate") ~ parens(arithExpr ~ comma ~ expr)).map {
+          case (a, e) =>
+            Expr.Replicate(a, e)
         } |
         (kw("overlay") ~ parens(expr ~ comma ~ expr)).map { case (e1, e2) =>
           Expr.Overlay(e1, e2)
@@ -304,9 +311,10 @@ object Parser {
       .map((w, h, e) => Program(e, (w.toInt, h.toInt)))
 
   @main def run(): Unit =
+    // TODO: rotate parsed as r
     val result =
       parse(
-        "(64, 64); r >  red",
+        "(64, 64); if x > 0  {red'} else {white}",
         p => program(using p)
       )
     result match
