@@ -63,8 +63,10 @@ object Parser {
   def wordBoundary(using p: P[?]): P[Unit] =
     P(!(CharIn("a-zA-Z0-9_")))
 
+  // def kw(s: String)(using p: P[?]): P[Unit] =
+  //   P(s ~ wordBoundary).!
   def kw(s: String)(using p: P[?]): P[Unit] =
-    P(s ~ wordBoundary).!
+    P(s ~~ !(CharIn("a-zA-Z0-9_")))
 
   def boolean(using p: P[?]): P[Expr] =
     P(
@@ -198,7 +200,7 @@ object Parser {
         (kw("juxtapose") ~ parens(expr.rep(1, sep = ","./)).map(exprs =>
           Expr.Juxtapose(exprs.head, exprs.tail.toList)
         )) |
-        (kw("if") ~ expr ~ "{" ~ braces(expr) ~ "}" ~ kw("else") ~ braces(expr))
+        (kw("if") ~ expr ~ braces(expr) ~ kw("else") ~ braces(expr))
           .map((cond, t, f) => Expr.If(cond, t, f))
     )
 
@@ -291,10 +293,6 @@ object Parser {
     P(identifier ~ "=" ~ expr ~ ";" ~ expr)
       .map((name, value, body) => Expr.Let(name, value, body))
 
-  // def ifExpr(using p: P[?]): P[Expr] =
-  //   P(kw("if") ~/ expr ~ braces(expr) ~ kw("else") ~/ braces(expr))
-  //     .map((cond, t, f) => Expr.If(cond, t, f))
-
   def ifExpr(using p: P[?]): P[Expr] =
     P(kw("if") ~/ expr ~ kw("then") ~ expr ~ kw("else") ~ expr)
       .map((cond, thenB, elseB) => If(cond, thenB, elseB))
@@ -308,7 +306,7 @@ object Parser {
   @main def run(): Unit =
     val result =
       parse(
-        "(64, 64); if x < 0 { red } else { white }",
+        "(64, 64); r >  red",
         p => program(using p)
       )
     result match
