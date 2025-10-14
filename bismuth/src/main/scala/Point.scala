@@ -27,6 +27,9 @@ case class Point(x: Double, y: Double) {
 }
 
 object Point {
+  def getX(p: Point): Double = p.x
+
+  def getY(p: Point): Double = p.y
   def rotate(θ: Double)(p: Point): Point = {
     val c = Math.cos(θ)
     val s = Math.sin(θ)
@@ -43,10 +46,10 @@ object Point {
   def swirl(θ: Double)(p: Point): Point = rotate(θ * p.norm())(p)
 }
 
-case class Polar(r: Double, θ: Double) {
+case class Polar(r: Double, theta: Double) {
   def toPoint(): Point = {
-    val x = r * Math.cos(θ)
-    val y = r * Math.sin(θ)
+    val x = r * Math.cos(theta)
+    val y = r * Math.sin(theta)
     return Point(x, y)
   }
 
