@@ -5,8 +5,7 @@ lazy val root = project
   .settings(
     name := "Bismuth",
     version := "0.1.0-SNAPSHOT",
-
     scalaVersion := scala3Version,
-
-    libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test
+    libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test,
+    libraryDependencies += "com.lihaoyi" %% "fastparse" % "3.1.1"
   )
