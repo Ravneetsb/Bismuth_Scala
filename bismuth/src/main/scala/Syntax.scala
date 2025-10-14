@@ -20,8 +20,8 @@ object Expr {
 
   case class VarE(name: Var) extends Expr
 
-  case class BinOp(lhs: Expr, op: BinOp, rhs: Expr) extends Expr
-  case class UnOp(op: UnOp, expr: Expr) extends Expr
+  case class BinOp(lhs: Expr, op: bismuth.BinOp, rhs: Expr) extends Expr
+  case class UnOp(op: bismuth.UnOp, expr: Expr) extends Expr
 
   case class Let(name: Var, value: Expr, body: Expr) extends Expr
 
@@ -58,10 +58,11 @@ sealed trait Arith
 
 object Arith {
   case object Pi extends Arith
-  case class BinOpA(lhs: Arith, op: BinOpA, rhs: Arith) extends Arith
-  case class UnOpA(op: UnOpA, expr: Arith) extends Arith
+  case class BinOpA(lhs: Arith, op: bismuth.BinOpA, rhs: Arith) extends Arith
+  case class UnOpA(op: bismuth.UnOpA, expr: Arith) extends Arith
   case class NumLit(value: Double) extends Arith
 }
+
 enum BinOpA:
   case AddA, MulA, DivA, SubA
 

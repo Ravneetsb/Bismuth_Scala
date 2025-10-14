@@ -5,7 +5,7 @@ import java.awt.Color as JavaColor
 import scala.reflect.ClassTag
 
 // Flip an image vertically
-def flipV[A](im: Image[A]): Image[A] =
+def flipVRender[A](im: Image[A]): Image[A] =
   p => im(Point(p.x, -p.y))
 
 // Render an Image[A] to a BufferedImage
