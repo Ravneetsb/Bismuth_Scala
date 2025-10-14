@@ -42,7 +42,9 @@ object Parser {
   ).map(c => ColorLit(namedColors(c)))
 
   def identifier(using p: P[?]): P[String] =
-    P(CharIn("a-zA-Z_") ~ CharsWhile(_.isLetterOrDigit, 0)).!.filter(
+    P(
+      CharIn("a-zA-Z_") ~ CharsWhile(c => c.isLetterOrDigit || c == '\'', 0)
+    ).!.filter(
       !reserved.contains(_)
     )
 
@@ -165,7 +167,39 @@ object Parser {
 
   def simpleExpr(using p: P[?]): P[Expr] =
     P(
-      namedColor | colorLit | grayLit | boolLit | coordVar | varE | parens(expr)
+      namedColor |
+        colorLit |
+        varE |
+        coordVar |
+        parens(expr) |
+        braces(expr) |
+        grayLit |
+        boolLit |
+        (kw("flip") ~ parens(expr)).map { case (e) => Expr.Flip(e) } |
+        (kw("scale") ~ parens(arithExpr ~ comma ~ expr)).map { case (a, e) =>
+          Expr.Scale(a, e)
+        } |
+        (kw("swirl") ~ parens(arithExpr ~ comma ~ expr)).map { case (a, e) =>
+          Expr.Swirl(a, e)
+        } |
+        (kw("rotate") ~ parens(arithExpr ~ comma ~ expr)).map { case (a, e) =>
+          Expr.Rotate(a, e)
+        } |
+        (kw("rotate") ~ parens(arithExpr ~ comma ~ expr)).map { case (a, e) =>
+          Expr.Replicate(a, e)
+        } |
+        (kw("overlay") ~ parens(expr ~ comma ~ expr)).map { case (e1, e2) =>
+          Expr.Overlay(e1, e2)
+        } |
+        (kw("translate") ~ parens(arithExpr ~ comma ~ arithExpr ~ comma ~ expr))
+          .map { case (ax, ay, e) =>
+            Expr.Translate(ax, ay, e)
+          } |
+        (kw("juxtapose") ~ parens(expr.rep(1, sep = ","./)).map(exprs =>
+          Expr.Juxtapose(exprs.head, exprs.tail.toList)
+        )) |
+        (kw("if") ~ expr ~ "{" ~ braces(expr) ~ "}" ~ kw("else") ~ braces(expr))
+          .map((cond, t, f) => Expr.If(cond, t, f))
     )
 
   def unOpExpr(using p: P[?]): P[Expr] =
@@ -250,10 +284,22 @@ object Parser {
       }
     }
 
-  def expr(using p: P[?]): P[Expr] =
-    // TODO:
-    // P(letExpr | ifExpr | transform | juxtapose | relExpr)
+  def exprOp(using p: P[?]): P[Expr] =
     P(juxExpr)
+
+  def letExpr(using p: P[?]): P[Expr] =
+    P(identifier ~ "=" ~ expr ~ ";" ~ expr)
+      .map((name, value, body) => Expr.Let(name, value, body))
+
+  // def ifExpr(using p: P[?]): P[Expr] =
+  //   P(kw("if") ~/ expr ~ braces(expr) ~ kw("else") ~/ braces(expr))
+  //     .map((cond, t, f) => Expr.If(cond, t, f))
+
+  def ifExpr(using p: P[?]): P[Expr] =
+    P(kw("if") ~/ expr ~ kw("then") ~ expr ~ kw("else") ~ expr)
+      .map((cond, thenB, elseB) => If(cond, thenB, elseB))
+  def expr(using p: P[?]): P[Expr] =
+    P(letExpr | exprOp)
 
   def program(using p: P[?]): P[Program] =
     P(parens(number ~ "," ~ number) ~ ";" ~ expr)
@@ -262,7 +308,7 @@ object Parser {
   @main def run(): Unit =
     val result =
       parse(
-        "(64, 64); a = r < 1;",
+        "(64, 64); if x < 0 { red } else { white }",
         p => program(using p)
       )
     result match
