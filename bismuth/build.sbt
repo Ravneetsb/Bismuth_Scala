@@ -4,7 +4,9 @@ lazy val root = project
   .in(file("."))
   .settings(
     name := "Bismuth",
-    version := "0.1.0-SNAPSHOT",
+    version := "1.0.0",
+    Compile / mainClass := Some("bismuth.Main"),
+    assembly / assemblyJarName := "bismuth.jar",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test,
     libraryDependencies += "com.lihaoyi" %% "fastparse" % "3.1.1",

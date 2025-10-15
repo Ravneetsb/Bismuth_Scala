@@ -40,7 +40,6 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
     case Let(x, e1, e2) =>
       for
         v1 <- eval(ρ, e1)
-        _ = println(s"Bound $x -> $v1")
         result <- eval(ρ + (x -> v1), e2)
       yield result
 

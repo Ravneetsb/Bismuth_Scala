@@ -1,13 +1,3 @@
-// package bismuth
-//
-// import bismuth.Color
-//
-// @main def main(): Unit = {
-//   val red = Color.red
-//   val g = Color.Grayscale(1)
-//   println(red)
-//   println(g)
-// }
 package bismuth
 
 import java.io.File
@@ -22,7 +12,7 @@ object Main:
       case biFile :: outputFile :: Nil =>
         actualMain(biFile, outputFile)
       case _ =>
-        println("usage: runMain bismuth.Main <bismuth-program> <output-file>")
+        println("usage: java -jar bismuth.jar <bismuth-program> <output-file>")
 
   private def actualMain(biFile: String, outputFile: String): Unit =
     val fileContent = Try(scala.io.Source.fromFile(biFile).mkString)
@@ -44,13 +34,6 @@ object Main:
               case Right(img) =>
                 saveAsPng(img, outputFile)
                 println(s"✅ Rendered successfully to $outputFile")
-
-          // run(program) match
-          //   case Left(RunTimeError) =>
-          //     println(s"Runtime error")
-          //   case Right(img) =>
-          //     saveAsPng(img, outputFile)
-          //     println(s"✅ Rendered successfully to $outputFile")
 
   private def saveAsPng(img: java.awt.image.BufferedImage, path: String): Unit =
     Try(ImageIO.write(img, "png", new File(path))) match
