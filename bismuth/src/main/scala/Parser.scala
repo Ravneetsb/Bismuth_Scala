@@ -34,6 +34,7 @@ object Parser {
     "sin",
     "cos",
     "tan",
+    "pi",
     "sqrt"
   ) ++ namedColors.keySet
 
@@ -169,7 +170,8 @@ object Parser {
 
   def simpleExpr(using p: P[?]): P[Expr] =
     P(
-      varE |
+      keyword |
+        varE |
         namedColor |
         colorLit |
         coordVar |
@@ -316,7 +318,7 @@ object Parser {
   @main def run(): Unit =
     val result =
       parse(
-        "(64, 64); a = 0.2; a",
+        "(64, 64); pi/2",
         p => program(using p)
       )
     result match
