@@ -2,6 +2,7 @@ package bismuth
 
 import fastparse._
 import fastparse.ScalaWhitespace.whitespace
+import scala.util.{Try, Success, Failure}
 import Expr.*
 
 object Parser {
@@ -89,7 +90,7 @@ object Parser {
   // def parens(using p: P[?])(pa: => P[?]): P[?] = P("(" ~/ pa ~ ")")
   // def parens[A: P](p: => P[A]): P[A] = P("(" ~/ p ~ ")")
   def parens[A](parser: => P[A])(using P[?]): P[A] =
-    P("(" ~/ parser ~ ")")
+    P("(" ~ parser ~ ")")
 
   def braces[A](parser: => P[A])(using P[?]): P[A] =
     P("{" ~/ parser ~ "}")
@@ -183,7 +184,9 @@ object Parser {
         grayLit |
         boolLit |
         (kw("flip") ~ parens(expr)).map { case (e) => Expr.Flip(e) } |
-        (kw("scale") ~ parens(arithExpr ~ comma ~ (arithExpr ~ comma).? ~ expr))
+        (kw("scale") ~ parens(
+          arithExpr ~ comma ~ (arithExpr ~ comma).? ~ expr
+        ))
           .map {
             case (a, None, e) =>
               Expr.Scale(a, e)
@@ -315,15 +318,28 @@ object Parser {
   def parseProgram(input: String): Parsed[Program] =
     parse(input, p => program(using p))
 
-  @main def run(): Unit =
-    val result =
-      parse(
-        "(64, 64); pi/2",
-        p => program(using p)
-      )
-    result match
-      case Parsed.Success(value, successIndex) =>
-        println(s"Success! value=$value, index=$successIndex")
-      case f: Parsed.Failure =>
-        println(s"Failed: $f")
+  @main def main(file: String): Unit =
+    val fileContent = Try(scala.io.Source.fromFile(file).mkString)
+    fileContent match {
+      case Success(content) => {
+        val result =
+          parse(
+            content,
+            p => program(using p)
+          )
+        result match
+          case Parsed.Success(value, successIndex) =>
+            println(s"Success! value=$value, index=$successIndex")
+          case Parsed.Failure(a, b, extra) => {
+            println(s"Failed:󰱶")
+            println(s"$a \n $b")
+            println(s"---- ---- ----")
+            val trace = extra.trace()
+            val msg = trace.longTerminalsMsg
+            println(s"$msg")
+            println(s"---- ---- ----")
+          }
+      }
+      case Failure(ex) => println(s"$ex")
+    }
 }
