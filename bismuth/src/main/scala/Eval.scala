@@ -78,6 +78,15 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
         α = evalArith(a)
         result = liftVPoly([A] => (im: Image[A]) => scaleIm(α)(im))(v)
       yield result
+
+    case Scale2(dx, dy, e) =>
+      for
+        v <- eval(ρ, e)
+        x = evalArith(dx)
+        y = evalArith(dy)
+        result = liftVPoly([A] => (im: Image[A]) => scaleIm2(x, y)(im))(v)
+      yield result
+
   }
 
 def evalArith(e: Arith): Double =
