@@ -35,7 +35,7 @@ object Value:
 
   def liftV2(
       f: [A] => (Image[A], Image[A]) => Image[A]
-  )(v1: Value, v2: Value): Option[Value] =
+  )(v1: Value)(v2: Value): Option[Value] =
     (v1, v2) match
       case (Value.ColorV(im1), Value.ColorV(im2)) =>
         Some(Value.ColorV(f[Color](im1, im2)))

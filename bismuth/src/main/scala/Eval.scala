@@ -112,6 +112,23 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
         }
       yield result
 
+    case If(ge, te, fe) => {
+      for
+        g <- eval(ρ, ge)
+        t <- eval(ρ, te)
+        f <- eval(ρ, fe)
+        result <- g match {
+          case MaskV(g) =>
+            handleMaybe("Expected images of the same type")(
+              liftV2(
+                [A] => (im1: Image[A], im2: Image[A]) => select(g)(im1)(im2)
+              )(t)(f)
+            )
+          case _ => err("If condition must be a mask")
+        }
+      yield result
+    }
+
   }
 
 def evalArith(e: Arith): Double =
