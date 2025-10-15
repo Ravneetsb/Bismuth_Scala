@@ -149,7 +149,7 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
         r <- eval(ρ, right)
 
         result <- handleMaybe(
-          "Expected Images to be of the same type in JuxtaposeH"
+          "Expected Images to be of the same type in JuxtaposeV"
         )(
           liftV2(
             [A] => (im1: Image[A], im2: Image[A]) => verticalJuxtapose(im1)(im2)
@@ -157,6 +157,25 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
         )
       yield result
 
+    case Juxtapose(e, es) =>
+      for
+        v1 <- eval(ρ, e)
+        vs <- sequenceE(es.map(eval(ρ, _)))
+        result <- handleMaybe("Expected Images of the same type in Juxtapose")(
+          liftVs([A] => (ims: List[Image[A]]) => juxtapose(ims))(v1 :: vs)
+        )
+      yield result
+
+  }
+
+def sequenceE[A](
+    xs: List[Either[RunTimeError, A]]
+): Either[RunTimeError, List[A]] =
+  xs.foldRight(Right(Nil): Either[RunTimeError, List[A]]) { (ex, acc) =>
+    for
+      x <- ex
+      xs <- acc
+    yield x :: xs
   }
 
 def evalArith(e: Arith): Double =
