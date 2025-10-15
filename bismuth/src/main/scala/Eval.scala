@@ -101,6 +101,17 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
         result = liftVPoly([A] => (im: Image[A]) => swirlIm(α)(im))(v)
       yield result
 
+    case Overlay(e1, e2) =>
+      for
+        v1 <- eval(ρ, e1)
+        v2 <- eval(ρ, e2)
+        result <- (v1, v2) match {
+          case (ColorV(v1), ColorV(v2)) =>
+            Right(ColorV(overlayImage(v1)(v2)))
+          case _ => err("Expected 2 ColorV values in overlay")
+        }
+      yield result
+
   }
 
 def evalArith(e: Arith): Double =
