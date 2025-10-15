@@ -143,6 +143,19 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
           )(l)(r)
         )
       yield result
+    case JuxtaposeV(left, right) =>
+      for
+        l <- eval(ρ, left)
+        r <- eval(ρ, right)
+
+        result <- handleMaybe(
+          "Expected Images to be of the same type in JuxtaposeH"
+        )(
+          liftV2(
+            [A] => (im1: Image[A], im2: Image[A]) => verticalJuxtapose(im1)(im2)
+          )(l)(r)
+        )
+      yield result
 
   }
 

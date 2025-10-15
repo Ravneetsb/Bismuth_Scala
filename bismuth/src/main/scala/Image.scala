@@ -114,7 +114,7 @@ def horizontalJuxtapose[A](f: Image[A])(g: Image[A]): Image[A] =
   }
 
 // Vertical juxtaposition
-def verticalJuxtapose[A](f: Image[A], g: Image[A]): Image[A] =
+def verticalJuxtapose[A](f: Image[A])(g: Image[A]): Image[A] =
   rotateIm(-math.Pi / 2)(
     horizontalJuxtapose(rotateIm(math.Pi / 2)(f))(rotateIm(math.Pi / 2)(g))
   )
