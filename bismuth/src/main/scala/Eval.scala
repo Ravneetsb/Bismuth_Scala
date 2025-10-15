@@ -166,6 +166,19 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
         )
       yield result
 
+    case Replicate(times, e) =>
+      for
+        v <- eval(ρ, e)
+        n = evalArith(times).round.toInt
+        result <- handleMaybe(
+          "There was a problem creating the replicate list."
+        )(
+          liftVs([A] => (ims: List[Image[A]]) => juxtapose(ims))(
+            List.fill(n)(v)
+          )
+        )
+      yield result
+
   }
 
 def sequenceE[A](
@@ -211,8 +224,10 @@ def evalUnOp(op: bismuth.UnOp)(v: Value) =
 
     case (bismuth.UnOp.Not, MaskV(im)) =>
       Right(MaskV(lift1B(!_)(im)))
+    case (bismuth.UnOp.Negate, MaskV(im)) =>
+      Right(MaskV(lift1B(!_)(im)))
 
-    case (op, _) => err(s"Unary operator and operand mismatch. op: $op")
+    case (op, x) => err(s"Unary operator and operand mismatch. op: $op, x: $x")
 
   }
 
