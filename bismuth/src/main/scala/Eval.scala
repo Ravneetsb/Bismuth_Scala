@@ -94,6 +94,13 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
         result = liftVPoly([A] => (im: Image[A]) => rotateIm(α)(im))(v)
       yield result
 
+    case Swirl(θ, e) =>
+      for
+        v <- eval(ρ, e)
+        α = evalArith(θ)
+        result = liftVPoly([A] => (im: Image[A]) => swirlIm(α)(im))(v)
+      yield result
+
   }
 
 def evalArith(e: Arith): Double =
