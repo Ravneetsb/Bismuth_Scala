@@ -2,6 +2,7 @@ package bismuth
 
 import Expr._
 import Value.*
+import java.awt.image.BufferedImage
 
 enum RunTimeError:
   case runTimeError(s: String)
@@ -33,10 +34,13 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
         result <- mkColor(rv)(gv)(bv)(av)
       yield result
 
-    case VarE(x) => handleMaybe(x)(ρ.get(x))
+    case VarE(x) => {
+      handleMaybe(s"Did not find $x in Env")(ρ.get(x))
+    }
     case Let(x, e1, e2) =>
       for
         v1 <- eval(ρ, e1)
+        _ = println(s"Bound $x -> $v1")
         result <- eval(ρ + (x -> v1), e2)
       yield result
 
@@ -53,25 +57,49 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
         result <- evalUnOp(op)(v)
       yield result
 
-    // case Flip(e) =>
-    //   for
-    //     v <- eval(ρ, e)
-    //     result <- liftVPoly(flipV)(v)
-    //   yield result
     case Flip(e) =>
-      eval(ρ, e).map(v => liftVPoly(flipV)(v))
+      for
+        v <- eval(ρ, e)
+        result = liftVPoly([A] => (im: Image[A]) => flipV(im))(v)
+      yield result
 
+    case Translate(dx, dy, e) =>
+      for
+        v <- eval(ρ, e)
+        x = evalArith(dx)
+        y = evalArith(dy)
+        vec = Vector(x, y)
+        result = liftVPoly([A] => (im: Image[A]) => translateIm(vec)(im))(v)
+      yield result
+  }
+
+def evalArith(e: Arith): Double =
+  e match {
+    case Arith.Pi                                => math.Pi
+    case (Arith.NumLit(d))                       => d
+    case (Arith.UnOpA(bismuth.UnOpA.NegateA, a)) => -evalArith(a)
+    case (Arith.UnOpA(bismuth.UnOpA.BuiltInA(f), a)) =>
+      BuiltInFn.getFn(f)(evalArith(a))
+    case (Arith.BinOpA(a1, op, a2)) =>
+      op match {
+        case bismuth.BinOpA.AddA => evalArith(a1) + evalArith(a2)
+        case bismuth.BinOpA.SubA => evalArith(a1) - evalArith(a2)
+        case bismuth.BinOpA.MulA => evalArith(a1) * evalArith(a2)
+        case bismuth.BinOpA.DivA => evalArith(a1) / evalArith(a2)
+      }
   }
 
 def evalUnOp(op: bismuth.UnOp)(v: Value) =
   (op, v) match {
     case (bismuth.UnOp.Negate, GrayV(im)) => Right(GrayV(lift1D(-_)(im)))
     case (bismuth.UnOp.BuiltIn(f), GrayV(im)) =>
-      Right(GrayV(lift1D(BuiltInFn.getFn(f))(im)))
+      Right(GrayV(lift1(BuiltInFn.getFn(f))(im)))
 
     case (bismuth.UnOp.Negate, ColorV(im)) =>
       Right(
-        ColorV(lift1C(c => c.copy(r = -c.r, g = -c.g, b = -c.b, a = c.a))(im))
+        ColorV(
+          lift1((c: Color) => c.copy(r = -c.r, g = -c.g, b = -c.b, a = c.a))(im)
+        )
       )
     case (bismuth.UnOp.BuiltIn(f), ColorV(im)) =>
       Right(ColorV(lift1C(c => c.cMap(BuiltInFn.getFn(f)))(im)))
@@ -137,4 +165,15 @@ def mkColor(
       Right(Value.ColorV(liftA4(Color.apply, ri, gi, bi, ai)))
     case _ =>
       err("Expected grayscale values in mkColor")
+  }
+
+def run(program: Program): Either[RunTimeError, BufferedImage] =
+  eval(Map.empty, program.image).map { v =>
+    def renderV(value: Value, res: (Int, Int)): BufferedImage = value match {
+      case ColorV(im) => render(im, res._1, res._2)
+      case GrayV(im)  => render(im, res._1, res._2)
+      case MaskV(im)  => render(im, res._1, res._2)
+    }
+
+    renderV(v, program.resolution)
   }

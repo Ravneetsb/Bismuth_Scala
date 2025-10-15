@@ -6,10 +6,10 @@ enum Value:
   case MaskV(im: ImageMask)
 
 object Value:
-  def liftVPoly(f: [A] => ImageT[A] => ImageT[A])(v: Value): Value = v match
-    case Value.ColorV(im) => Value.ColorV(f[Color](identity)(im))
-    case Value.GrayV(im)  => Value.GrayV(f[Double](identity)(im))
-    case Value.MaskV(im)  => Value.MaskV(f[Boolean](identity)(im))
+  def liftVPoly(f: [A] => Image[A] => Image[A])(v: Value): Value = v match
+    case Value.ColorV(im) => Value.ColorV(f[Color](im))
+    case Value.GrayV(im)  => Value.GrayV(f[Double](im))
+    case Value.MaskV(im)  => Value.MaskV(f[Boolean](im))
 
   trait ValueLike[A]:
     def toValue(im: Image[A]): Value

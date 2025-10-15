@@ -44,7 +44,7 @@ object Parser {
   def identifier(using p: P[?]): P[String] =
     P(
       CharIn("a-zA-Z_") ~ CharsWhile(c => c.isLetterOrDigit || c == '\'', 0)
-    ).!.filter(
+    ).!.map(_.trim).filter(
       !reserved.contains(_)
     )
 
@@ -310,11 +310,13 @@ object Parser {
     P(parens(number ~ "," ~ number) ~ ";" ~ expr)
       .map((w, h, e) => Program(e, (w.toInt, h.toInt)))
 
+  def parseProgram(input: String): Parsed[Program] =
+    parse(input, p => program(using p))
+
   @main def run(): Unit =
-    // TODO: rotate parsed as r
     val result =
       parse(
-        "(64, 64); if x > 0  {red'} else {white}",
+        "(64, 64); a = 0.2; a",
         p => program(using p)
       )
     result match
