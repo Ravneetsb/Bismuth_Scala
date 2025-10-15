@@ -105,7 +105,7 @@ def xorM(a: ImageMask, b: ImageMask): ImageMask =
   lift2[Boolean, Boolean, Boolean]((x, y) => (x || y) && !(x && y))(a)(b)
 
 // Horizontal juxtaposition
-def horizontalJuxtapose[A](f: Image[A], g: Image[A]): Image[A] =
+def horizontalJuxtapose[A](f: Image[A])(g: Image[A]): Image[A] =
   p => {
     val Point(x, y) = p
     val img1 = f(Point(2 * x + 1, y))
@@ -116,7 +116,7 @@ def horizontalJuxtapose[A](f: Image[A], g: Image[A]): Image[A] =
 // Vertical juxtaposition
 def verticalJuxtapose[A](f: Image[A], g: Image[A]): Image[A] =
   rotateIm(-math.Pi / 2)(
-    horizontalJuxtapose(rotateIm(math.Pi / 2)(f), rotateIm(math.Pi / 2)(g))
+    horizontalJuxtapose(rotateIm(math.Pi / 2)(f))(rotateIm(math.Pi / 2)(g))
   )
 
 // General horizontal juxtaposition for a list of images

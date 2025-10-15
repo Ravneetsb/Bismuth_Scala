@@ -129,6 +129,21 @@ def eval(ρ: Env, e: Expr): Either[RunTimeError, Value] =
       yield result
     }
 
+    case JuxtaposeH(left, right) =>
+      for
+        l <- eval(ρ, left)
+        r <- eval(ρ, right)
+
+        result <- handleMaybe(
+          "Expected Images to be of the same type in JuxtaposeH"
+        )(
+          liftV2(
+            [A] =>
+              (im1: Image[A], im2: Image[A]) => horizontalJuxtapose(im1)(im2)
+          )(l)(r)
+        )
+      yield result
+
   }
 
 def evalArith(e: Arith): Double =
