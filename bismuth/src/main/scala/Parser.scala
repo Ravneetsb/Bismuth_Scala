@@ -168,7 +168,7 @@ object Parser {
 
   // Unary and Binary exps
 
-  def simpleExpr(using p: P[?]): P[Expr] =
+  def atomicExpr(using p: P[?]): P[Expr] =
     P(
       keyword |
         varE |
@@ -214,7 +214,7 @@ object Parser {
     )
 
   def unOpExpr(using p: P[?]): P[Expr] =
-    P(("-".!).? ~ simpleExpr).map {
+    P(("-".!).? ~ atomicExpr).map {
       case (Some(_), e) => Expr.UnOp(bismuth.UnOp.Negate, e)
       case (None, e)    => e
     }
