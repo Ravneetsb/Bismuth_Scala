@@ -316,7 +316,7 @@ object Parser {
   def parseProgram(input: String): Parsed[Program] =
     parse(input, p => program(using p))
 
-  @main def main(file: String): Unit =
+  @main def parser(file: String): Unit =
     val fileContent = Try(scala.io.Source.fromFile(file).mkString)
     fileContent match {
       case Success(content) => {
@@ -329,7 +329,7 @@ object Parser {
           case Parsed.Success(value, successIndex) =>
             println(s"Success! value=$value, index=$successIndex")
           case Parsed.Failure(a, b, extra) => {
-            println(s"Failed:󰱶")
+            println(s"Failed at parsing")
             println(s"$a \n $b")
             println(s"---- ---- ----")
             val trace = extra.trace()

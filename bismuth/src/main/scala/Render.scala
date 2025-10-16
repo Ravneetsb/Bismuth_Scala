@@ -20,7 +20,7 @@ def render[A](im: Image[A], width: Int, height: Int)(using
     for x <- 0 until width do
       val px = mapCoord(x, width)
       val py = mapCoord(y, height)
-      println(s"$px, $py")
+      // println(s"$px, $py")
       val color: JavaColor = pv.toPNGPixel(flipV(im)(Point(px, py)))
       img.setRGB(x, y, color.getRGB)
 

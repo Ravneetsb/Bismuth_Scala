@@ -5,7 +5,7 @@ lazy val root = project
   .settings(
     name := "Bismuth",
     version := "1.0.0",
-    Compile / mainClass := Some("bismuth.Main"),
+    Compile / mainClass := Some("bismuth.all"),
     assembly / assemblyJarName := "bismuth.jar",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test,

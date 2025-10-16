@@ -131,6 +131,6 @@ def juxtapose[A](images: List[Image[A]]): Image[A] = { p =>
   val image = images(normalIndex)
   val newX = 2 * fracX - 1
   val mehmet = image(Point(newX, y))
-  println(s"$p, $index, $normalIndex, $newX ,$mehmet")
+  // println(s"$p, $index, $normalIndex, $newX ,$mehmet")
   mehmet
 }
