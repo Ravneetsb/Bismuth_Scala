@@ -33,7 +33,7 @@ object Main:
                 println(s"Parse error: $msg")
               case Right(img) =>
                 saveAsPng(img, outputFile)
-                println(s"✅ Rendered successfully to $outputFile")
+                println(s"Rendered successfully to $outputFile")
 
   private def saveAsPng(img: java.awt.image.BufferedImage, path: String): Unit =
     Try(ImageIO.write(img, "png", new File(path))) match
