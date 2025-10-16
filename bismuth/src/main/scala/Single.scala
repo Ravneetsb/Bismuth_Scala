@@ -10,7 +10,9 @@ object Single:
       case biFile :: outputFile :: Nil =>
         singleMain(biFile, outputFile)
       case _ =>
-        println("usage: java -jar bismuth.jar <bismuth-program> <output-file>")
+        println(
+          "usage: java -cp bismuth.jar bismuth.single <bismuth-program> <output-file>"
+        )
 
   private def singleMain(biFile: String, outputFile: String): Unit =
     val fileContent = Try(scala.io.Source.fromFile(biFile).mkString)

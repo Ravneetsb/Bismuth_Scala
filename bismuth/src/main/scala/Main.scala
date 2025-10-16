@@ -24,7 +24,7 @@ object Main:
       case directory :: outputDir :: Nil =>
         allMain(directory, outputDir, defaultThreads)
       case _ =>
-        println("Usage: all <inputDir> <outputDir> [threads]")
+        println("Usage: java -jar bismuth.jar <inputDir> <outputDir> [threads]")
     }
 
   private def allMain(
