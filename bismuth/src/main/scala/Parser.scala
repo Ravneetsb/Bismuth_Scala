@@ -65,8 +65,6 @@ object Parser {
   def wordBoundary(using p: P[?]): P[Unit] =
     P(!(CharIn("a-zA-Z0-9_")))
 
-  // def kw(s: String)(using p: P[?]): P[Unit] =
-  //   P(s ~ wordBoundary).!
   def kw(s: String)(using p: P[?]): P[Unit] =
     P(s ~~ !(CharIn("a-zA-Z0-9_")))
 

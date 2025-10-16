@@ -124,10 +124,13 @@ def juxtapose[A](images: List[Image[A]]): Image[A] = { p =>
   val Point(x, y) = p
   val n = images.length
   val imageNum = (x + 1) * n / 2.0
-  val index = math.floor(imageNum).toInt
+  val index =
+    math.floor(if imageNum.isInfinity then -imageNum else imageNum).toInt
   val normalIndex = if (index < 0) 0 else if (index >= n) n - 1 else index
   val fracX = imageNum - index
   val image = images(normalIndex)
   val newX = 2 * fracX - 1
-  image(Point(newX, y))
+  val mehmet = image(Point(newX, y))
+  println(s"$p, $index, $normalIndex, $newX ,$mehmet")
+  mehmet
 }
