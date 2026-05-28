@@ -1,5 +1,9 @@
 # Bismuth
 
+This repository is a Scala port of the original Bismuth interpreter, which was
+written in Haskell. I made this port while serving as a TA for CS 686: Program
+Synthesis.
+
 Bismuth is a small image-generation language implemented in Scala 3. A Bismuth
 program describes an image with coordinate expressions, colors, masks,
 arithmetic, transformations, and composition operators, then renders the result
